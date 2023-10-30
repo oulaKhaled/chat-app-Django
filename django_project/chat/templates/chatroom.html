@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+          <div class="col-6">
+              <form>
+                  <div class="form-group">
+                      <label for="exampleFormControlTextarea1" class="h4 pt-5">Chatroom</label>
+                      <textarea class="form-control" id="chat-text" rows="10"></textarea><br>
+                  </div>
+                  <div class="form-group">
+                      <input class="form-control" id="input" type="text"></br>
+                  </div>
+                  <input class="btn btn-secondary btn-lg btn-block" id="submit" type="button" value="Send">
+              </form>
+          </div>
+      </div>
+  </div>
+  {{user}}
+    
+  
+    <!-- convert an object into a JSON object -->
+    {{room_name|json_script:"room-name"}}
+    {{request.user.username| json_script:"user_username"}}
+    <script>
+      
+        // convert a JSON object in text format to js object that can be used
+        const user_username=JSON.parse(document.getElementById('user_username').textContent)
+        const roomName=JSON.parse(document.getElementById('room-name').textContent);
+
+      
+      // method to send messege to our server
+      document.querySelector("#submit").onclick=function(e){
+         //to collect the information from the input and get the value
+        const messegeInputDom=document.querySelector("#input");
+        const messege=messegeInputDom.value;
+        //set up new send messege 
+        chatSocket.send(JSON.stringify({
+          'messege':messege,
+          'username':user_username,
+
+        }));
+        messegeInputDom.value='';
+      };
+        //create websocket connection script
+        const chatSocket=new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/'); //receive a massege
+        
+        chatSocket.onmessage=function(e){
+            const data=JSON.parse(e.data)
+           console.log(data);
+            document.querySelector("#chat-text").value+=(data.username+ " : "+data.messege+"\n")
+        
+          };
+    </script>
+ 
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+
+</html>
